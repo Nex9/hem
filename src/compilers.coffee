@@ -38,7 +38,7 @@ compilers.eco = (path) ->
   module.exports = content;
   """
 
-compilers.jeco = (path) -> 
+compilers.jeco = (path) ->
   try
     content = eco.precompile fs.readFileSync path, 'utf8'
   catch err
@@ -47,7 +47,7 @@ compilers.jeco = (path) ->
     err.path    = "jeco Path:  " + path
     throw err
   """
-  module.exports = function(values, data){ 
+  module.exports = function(values, data){
     var $  = jQuery, result = $();
     values = $.makeArray(values);
     data = data || {};
@@ -73,7 +73,7 @@ require.extensions['.html'] = (module, filename) ->
 
 try
   jade = require('jade')
-  
+
   compilers.jade = (path) ->
     content = fs.readFileSync(path, 'utf8')
     try
@@ -94,21 +94,23 @@ catch err
 
 try
   stylus = require('stylus')
-  
+  nib    = require('nib')
+
   compilers.styl = (_path) ->
     content = fs.readFileSync(_path, 'utf8')
     result = ''
     stylus(content)
       .include(path.dirname(_path))
+      .use(nib())
       .set('include css', ('--includeCss' in process.argv))
       .set('compress', not compilers.DEBUG)
-      .render((err, css) -> 
+      .render((err, css) ->
         throw err if err
         result = css
       )
     result
-    
-  require.extensions['.styl'] = (module, filename) -> 
+
+  require.extensions['.styl'] = (module, filename) ->
     source = JSON.stringify(compilers.styl(filename))
     module._compile "module.exports = #{source}", filename
 catch err
